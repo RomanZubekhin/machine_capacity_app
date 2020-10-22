@@ -37,37 +37,29 @@ public class MachineCapacityController {
 
     String plan = "";
     String norm = "";
+    private static final HashMap<String,Integer> hashMap = new HashMap<>();
+    private static final ArrayList<String> arrayList = new ArrayList<>();
 
     @FXML
     void initialize() {
-        openPathButtonPlan.setOnAction(event -> {
-            openFilePlan(event);
-        });
-        openPathButtonNorm.setOnAction(event -> {
-            openFileNorm(event);
-        });
+        openPathButtonPlan.setOnAction(this::openFilePlan);
+        openPathButtonNorm.setOnAction(this::openFileNorm);
 
         calculateButton.setOnAction(event -> {
-            try {
-                final File fileRead = new File(plan);
-                final File fileWrite = new File(norm);
-                readFromExelAndWriteHashMap(fileRead,0,1);
+            final File fileRead = new File(plan);
+            final File fileWrite = new File(norm);
+            readFromExelAndWriteHashMap(fileRead,hashMap);
 
-                if (checkArticleInExel(fileWrite, hashMap)) {
-                    areaTextField.appendText("Проверка выполнена!\n");
-                    areaTextField.appendText("Запись данных...\n");
-                    writeIntoExelNorm(fileWrite, hashMap);
-                    areaTextField.appendText("Готово!");
-                }else{
-                    areaTextField.appendText("Запись данных не возможна! \nВнесите в таблицу следующие номера:");
-                    for (String s : arrayList) {
-                        areaTextField.appendText(s);
-                    }
+            if (checkArticleInExel(fileWrite, hashMap,arrayList)) {
+                areaTextField.appendText("Проверка выполнена!\n");
+                areaTextField.appendText("Запись данных...\n");
+                writeIntoExelNorm(fileWrite, hashMap);
+                areaTextField.appendText("Готово!");
+            }else{
+                areaTextField.appendText("Запись данных не возможна! \nВнесите в таблицу следующие номера:");
+                for (String s : arrayList) {
+                    areaTextField.appendText(s);
                 }
-            } catch (FileNotFoundException f){
-                f.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         });
     }
@@ -102,35 +94,33 @@ public class MachineCapacityController {
             norm = normTextField.getText();
         }
     }
-    private final static HashMap<String,Integer> hashMap = new HashMap<>();
-    private final static ArrayList<String> arrayList = new ArrayList<>();
 
-    public static void readFromExelAndWriteHashMap(File file, int numArticle, int numQuantity) throws IOException {
-        int count = 0;
-        Workbook myExelBook = new XSSFWorkbook(new FileInputStream(file));
-
-        Sheet myExelSheet = myExelBook.getSheet("Лист2");
-        while (true) {
-            try {
-                Row row = myExelSheet.getRow(count);
-                String article = null;
-                int quantity = 0;
-                Cell c = row.getCell(numArticle);
+    public static void readFromExelAndWriteHashMap(File file, HashMap<String,Integer> map){
+        Workbook myExelBook = null;
+        try {
+            myExelBook = new XSSFWorkbook(new FileInputStream(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Sheet myExelSheet = myExelBook.getSheetAt(1);
+        String article = null;
+        int quantity = 0;
+        for (Row row : myExelSheet) {
+            for (Cell c : row) {
                 if (!(c == null || c.getCellType() == CellType.BLANK)) {
-                    if (row.getCell(numArticle).getCellType() == CellType.STRING) {
-                        article = row.getCell(numArticle).getStringCellValue();
+                    if (c.getCellType() == CellType.STRING) {
+                        article = c.getStringCellValue();
                     }
-                    if (row.getCell(numQuantity).getCellType() == CellType.NUMERIC) {
-                        quantity = (int) row.getCell(numQuantity).getNumericCellValue();
+                    if (c.getCellType() == CellType.NUMERIC) {
+                        quantity = (int) c.getNumericCellValue();
                     }
-                    hashMap.put(article, quantity);
-                    count++;
                 } else break;
-            }catch (NullPointerException exception){return;}
+            }
+            map.put(article, quantity);
         }
     }
 
-    public static boolean checkArticleInExel(File fileWrite, HashMap<String, Integer> map){
+    public static boolean checkArticleInExel(File fileWrite, HashMap<String, Integer> map, ArrayList<String> array){
         boolean flagWrite = false;
         try {
             FileInputStream fileInputStream = new FileInputStream(fileWrite);
@@ -153,7 +143,7 @@ public class MachineCapacityController {
                     }
                 }
                 if(flag){
-                    arrayList.add(m.getKey());
+                    array.add(m.getKey());
                 }
             }
             if (sizeMap == hitCounter){
