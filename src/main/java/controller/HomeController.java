@@ -1,4 +1,4 @@
-package sample.controller;
+package controller;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
@@ -21,7 +21,7 @@ public class HomeController {
         machineCapacityButton.setOnAction(event -> {
             machineCapacityButton.getScene().getWindow().hide();
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/sample/view/machineCapacity.fxml"));
+            loader.setLocation(getClass().getResource("/main/java/controller/view/machineCapacity.fxml"));
             try {
                 loader.load();
             } catch (IOException e) {

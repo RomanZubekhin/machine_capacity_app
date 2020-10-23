@@ -1,4 +1,4 @@
-package sample.controller;
+package controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -7,7 +7,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import sample.model.ClassMethods;
+import model.ClassMethods;
 
 import java.io.*;
 
