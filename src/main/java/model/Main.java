@@ -12,7 +12,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/mainWindow.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/view/mainWindow.fxml"));
         primaryStage.setTitle("JavaFX App");
         primaryStage.setScene(new Scene(root, 500, 400));
         primaryStage.show();
